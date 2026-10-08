@@ -8,7 +8,7 @@ Architecture: Synchronized game objects in a concurrent registry. A Java HttpSer
 
 Tech stack: Java 17, jdk.httpserver, Gson 2.14.0, PowerShell and POSIX shell scripts.
 
-Spec: Group_Project_Server_Design.md in the same outputs directory.
+Spec: [Server design](../specs/2026-10-07-server-api.md).
 
 ## Global constraints
 

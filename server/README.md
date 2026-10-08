@@ -112,7 +112,7 @@ Alex supplied payloads but did not specify HTTP status codes or waiting/terminal
 - All move errors use `valid:false` and `reason`. Other errors use `error`. Unexpected internal errors use 500 and a generic message.
 - Strict JSON objects only. Position is a JSON integer from 0 to 8, not a string, decimal, or exponent. Player is exactly X or O. Extra fields are ignored.
 
-Verify these choices, his configured server URL, and his position numbering when his client source is available. The real client has not yet been tested against this server.
+Alex's current console client is in `../src/Client/` and connects to `http://localhost:8080` with positions 0–8. It compiles with JDK 17. A local integration check confirmed that its O player can join, play moves, and read a win against this server, with the X opponent driven through HTTP requests. The create-game client exits on `WAITING_FOR_PLAYER`; it needs to keep polling that status before a full game with two console clients can be tested. See the repository README for the current integration status.
 
 ## Source and test layout
 

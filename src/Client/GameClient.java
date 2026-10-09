@@ -54,12 +54,14 @@ public class GameClient {
 
             BoardPrinter.print(board);
 
-            if (!status.equals("IN_PROGRESS")) {
+            if (status.equals("WIN") || status.equals("DRAW")) {
                 System.out.println("Game finished: " + status);
                 break;
             }
 
-            if (currentPlayer.equals(player)) {
+            if (status.equals("WAITING_FOR_PLAYER")) {
+                System.out.println("Waiting for the other player to join...");
+            } else if (status.equals("IN_PROGRESS") && currentPlayer.equals(player)) {
                 System.out.print("Your move (0-8): ");
                 int pos = scanner.nextInt();
 
@@ -72,7 +74,7 @@ public class GameClient {
                 System.out.println("Move response: " + moveResponse);
             }
 
-            Thread.sleep(1000);
+            Thread.sleep(status.equals("WAITING_FOR_PLAYER") ? 5000 : 2000);
         }
 
         String resultJson = api.sendGet("/game/result?gameId=" + gameId);

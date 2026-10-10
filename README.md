@@ -72,7 +72,29 @@ The server should be available at:
 http://localhost:8080
 ```
 
-Next, start the JSP client using Apache Tomcat.
+Next, start the JSP client using Apache Tomcat. Use either the standalone setup below or the IntelliJ setup.
+
+### Standalone Tomcat on Windows
+
+1. Download and extract Apache Tomcat 9 from the [official Tomcat download page](https://tomcat.apache.org/download-90.cgi). JDK 17 and Tomcat 9.0.122 were used for verification.
+2. In the extracted Tomcat folder, edit `conf/server.xml`. Change the HTTP `<Connector port="8080" ...>` to `port="8081"` so it does not conflict with the game API. For local-only play, add `address="127.0.0.1"` to that Connector.
+3. In a second PowerShell terminal at the repository root, set the path to your extracted Tomcat folder and deploy the three web files:
+
+```powershell
+$tomcatHome = 'C:\tools\apache-tomcat-9.0.122' # Replace with your extracted folder
+$webApp = Join-Path $tomcatHome 'webapps\sdev_200_group_project'
+New-Item -ItemType Directory -Path $webApp -Force | Out-Null
+Copy-Item .\src\Client\index.jsp, .\src\Client\game.jsp, .\src\Client\style.css -Destination $webApp
+$env:JAVA_HOME = Split-Path (Split-Path (Get-Command javac.exe).Source)
+& (Join-Path $tomcatHome 'bin\catalina.bat') run
+```
+
+4. Keep both terminals running and open `http://localhost:8081/sdev_200_group_project/index.jsp`. Use two separate browser sessions as described below.
+5. Stop Tomcat and the API with `Ctrl+C` in their respective terminals when finished. Game state is held in memory and resets when the API stops.
+
+The default API binds to this computer only. For two people playing from different computers, run both browsers against one shared Tomcat host and configure access to it on the intended network. `localhost` on each person's own computer does not connect them to the same game.
+
+### IntelliJ IDEA
 
 In IntelliJ IDEA:
 
@@ -160,6 +182,10 @@ From the project root, run:
 .\server\test.ps1
 ```
 
+The suite has 19 game-rule checks and 37 real HTTP checks, including wins, draws, invalid moves, malformed requests, and concurrent joins/moves. It starts its own temporary server and stops it afterward.
+
+Local integration verification on October 9, 2026 used JDK 17 and Tomcat 9.0.122. Two independent JSP sessions completed a win and a nine-move draw, displayed both players' results, and started a new round using Leave Game. Two console client processes also completed a game after the creator waited for the joiner. These checks complement the required screen recording of full gameplay.
+
 ## Console Client
 
 The original console client is still available and has not been replaced.
@@ -176,7 +202,23 @@ The console client entry point is:
 src/Client/Main.java
 ```
 
-The JSP client was added separately, so the console client can still be used or tested independently.
+The JSP client was added separately, so the console client can still be used or tested independently. Start the API server first, then compile from the repository root:
+
+```powershell
+New-Item -ItemType Directory -Path .\client-build -Force | Out-Null
+javac --release 17 -Xlint:all -d .\client-build .\src\Client\ApiClient.java .\src\Client\BoardPrinter.java .\src\Client\GameClient.java .\src\Client\Main.java
+java -cp .\client-build Main
+```
+
+Run `java -cp .\client-build Main` in a second terminal for Player O. In the first client, choose `1` to create a game and share its game ID. In the second client, choose `2` and enter that ID. The creator waits until the second player joins. Enter integer positions `0`–`8` on your turn:
+
+```text
+0 | 1 | 2
+3 | 4 | 5
+6 | 7 | 8
+```
+
+The console polls and may print the board more than once while waiting. Both clients display the final result after a win or draw. Restart both clients to play another round.
 
 ## API Endpoints
 

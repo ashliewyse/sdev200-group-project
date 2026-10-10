@@ -162,7 +162,7 @@
     }
 
     String board = "---------";
-        String currentPlayer = "";
+        String currentPlayer = "-";
         String status = "";
         String winner = "";
         String stateJson = "";
@@ -173,8 +173,8 @@
             stateJson = sendGet("/game/state?gameId=" + encodedGameId);
 
             board = extract(stateJson, "board");
-            currentPlayer = extract(stateJson, "currentPlayer");
             status = extract(stateJson, "status");
+            currentPlayer = "IN_PROGRESS".equals(status) ? extract(stateJson, "currentPlayer") : "-";
 
             if ("WIN".equals(status) || "DRAW".equals(status)) {
                 resultJson = sendGet("/game/result?gameId=" + encodedGameId);
